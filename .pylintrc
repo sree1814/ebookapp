@@ -1,0 +1,6 @@
+[MASTER]
+ignore=manage.py  # Ignore manage.py entirely
+
+# OR disable the specific rule globally
+[MESSAGES CONTROL]
+disable=import-outside-toplevel

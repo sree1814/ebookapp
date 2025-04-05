@@ -11,7 +11,8 @@ phases:
   commands:
    - python --version
    - pylint $CODEBUILD_SRC_DIR/*.py
-   - pylint $CODEBUILD_SRC_DIR/demoproj/*.py
+   - pylint $CODEBUILD_SRC_DIR/ebookstore/*.py
+   - pylint --disable=C0415 --load-plugins pylint_django $CODEBUILD_SRC_DIR/*.py
 artifacts:
  files:
   - '**/*'
