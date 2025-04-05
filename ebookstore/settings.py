@@ -128,4 +128,3 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'books/static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = 'book_list'   # or any view name after login
 LOGOUT_REDIRECT_URL = 'home'
-
