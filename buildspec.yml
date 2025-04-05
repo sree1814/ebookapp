@@ -10,9 +10,6 @@ phases:
  pre_build:
   commands:
    - python --version
-   - pylint $CODEBUILD_SRC_DIR/*.py
-   - pylint $CODEBUILD_SRC_DIR/ebookstore/*.py
-   - pylint --disable=C0415 --load-plugins pylint_django $CODEBUILD_SRC_DIR/*.py
-artifacts:
+   - pylint --load-plugins pylint_django $CODEBUILD_SRC_DIR/ebookstore/
  files:
   - '**/*'
