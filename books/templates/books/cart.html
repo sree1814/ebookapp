@@ -1,0 +1,48 @@
+{% extends 'books/base.html' %}
+{% block title %}Your Cart{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <h2 class="text-center mb-4">🛒 Your Cart</h2>
+
+    {% if cart_items %}
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Book</th>
+                        <th>Author</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in cart_items %}
+                        <tr>
+                            <td>{{ item.book.title }}</td>
+                            <td>{{ item.book.author }}</td>
+                            <td>${{ item.book.price }}</td>
+                            <td>
+                                <a href="{% url 'remove_from_cart' item.book.id %}" class="btn btn-danger btn-sm">
+                                    ❌ Remove
+                                </a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <div class="d-flex justify-content-between align-items-center mt-4">
+            <h4>Total: <strong>${{ total_price }}</strong></h4>
+            <a href="{% url 'checkout' %}" class="btn btn-success btn-lg">
+                🛍️ Proceed to Checkout
+            </a>
+        </div>
+    {% else %}
+        <p class="text-center mt-4">
+            Your cart is empty. <a href="{% url 'book_list' %}">Browse books</a> 📚
+        </p>
+    {% endif %}
+</div>
+{% endblock %}
