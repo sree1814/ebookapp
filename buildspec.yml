@@ -18,10 +18,3 @@ phases:
 artifacts:
   files:
     - '**/*
-      #- pylint $(find $CODEBUILD_SRC_DIR -name "*.py") --fail-under=6 || true
-      #- pylint --exit-zero $CODEBUILD_SRC_DIR/*.py
-      - pylint --exit-zero $CODEBUILD_SRC_DIR/ebookstore/*.py
-      - pylint --exit-zero $CODEBUILD_SRC_DIR/books/*.py
-artifacts:
-  files:
-    - '**/*
