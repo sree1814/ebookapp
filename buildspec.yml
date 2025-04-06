@@ -29,13 +29,14 @@ phases:
       - python manage.py test
 
       - echo "📊 Running SonarQube scan"
-      - sonar-scanner \
-          -Dsonar.projectKey=$SONAR_PROJECT_KEY \
-          -Dsonar.organization=$SONAR_ORG \
-          -Dsonar.sources=. \
-          -Dsonar.host.url=$SONAR_HOST \
-          -Dsonar.login=$SONAR_TOKEN \
-          -Dsonar.python.version=3.11
+      - >
+        sonar-scanner
+        -Dsonar.projectKey=$SONAR_PROJECT_KEY
+        -Dsonar.organization=$SONAR_ORG
+        -Dsonar.sources=.
+        -Dsonar.host.url=$SONAR_HOST
+        -Dsonar.login=$SONAR_TOKEN
+        -Dsonar.python.version=3.11
 
 cache:
   paths:
