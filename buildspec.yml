@@ -4,34 +4,30 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
-      # 1. Install system dependencies first
       - echo "🔧 Installing system packages"
       - yum install -y wget unzip jq python3-virtualenv
 
-      # 2. Set up Python virtual environment
       - echo "🐍 Configuring Python environment"
       - python3 -m venv venv
       - source venv/bin/activate
       - pip install --upgrade pip
       - pip install -r requirements.txt
 
-      # 3. Install Sonar Scanner
       - echo "⬇ Installing Sonar Scanner"
       - wget -q https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
       - unzip -q sonar-scanner-cli-5.0.1.3006-linux.zip
       - chmod +x sonar-scanner-5.0.1.3006-linux/bin/*
-      - export PATH="$PATH:$PWD/sonar-scanner-5.0.1.3006-linux/bin"
+      - export SONAR_SCANNER_PATH="$PWD/sonar-scanner-5.0.1.3006-linux/bin"
+      - echo "PATH=$PATH:$SONAR_SCANNER_PATH" >> $CODEBUILD_SRC_DIR/.env
 
   build:
     commands:
-      # 1. Activate virtual environment in new shell context
       - source venv/bin/activate
+      - source $CODEBUILD_SRC_DIR/.env
       
-      # 2. Run tests (remove || true for build failure on test errors)
       - echo "🧪 Running Django tests"
       - python manage.py test
 
-      # 3. SonarQube analysis
       - echo "📊 Running SonarQube scan"
       - sonar-scanner \
           -Dsonar.projectKey=$SONAR_PROJECT_KEY \
@@ -40,11 +36,6 @@ phases:
           -Dsonar.host.url=$SONAR_HOST \
           -Dsonar.login=$SONAR_TOKEN \
           -Dsonar.python.version=3.11
-
-artifacts:
-  files:
-    - '**/*'
-  discard-paths: no
 
 cache:
   paths:
