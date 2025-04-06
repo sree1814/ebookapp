@@ -1,44 +1,49 @@
 version: 0.2
-
+ 
 env:
-  secrets-manager:
-    LOGIN: prod/sonar:sonartoken
-    HOST: prod/sonar:HOST
-    Organization: prod/sonar:Organization
-    Project: prod/sonar:Project
-
+  secrets-manager:
+    LOGIN: prod/sonar:LOGIN
+    HOST: prod/sonar:HOST
+    Organization: prod/sonar:Organization
+    Project: prod/sonar:Project
+ 
 phases:
-  install:
-    runtime-versions:
-      python: 3.11
-    commands:
-      - echo "🔧 Setting up Python environment"
-      - python -m venv venv
-      - source venv/bin/activate
-      - pip install --upgrade pip
-      - pip install -r requirements.txt
-      - yum install -y wget unzip jq
-
-      - echo "⬇ Installing Sonar Scanner"
-      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-      - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-      - export SONAR_PATH=$PWD/sonar-scanner-5.0.1.3006-linux/bin
-      - echo "Sonar Scanner installed to $SONAR_PATH"
-
-build:
-    commands:
-      - echo "🧪 Running Django tests"
-      - source venv/bin/activate
-      - python manage.py test || true
-
-      - echo "📊 Running SonarQube analysis"
-      - export PATH=$PATH:$PWD/sonar-scanner-5.0.1.3006-linux/bin
-      - |
-          sonar-scanner \
-            -Dsonar.projectKey=$Project \
-            -Dsonar.organization=$Organization \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=$HOST \
-            -Dsonar.login=$LOGIN \
-            -Dsonar.python.version=3.11 \
-            -Dsonar.verbose=true
+  install:
+    runtime-versions:
+      python: 3.11
+      java: corretto17
+    commands:
+      - yum update -y
+      - yum install -y jq unzip
+      - python -m venv venv
+      - source venv/bin/activate
+      - pip install --upgrade pip
+      - pip install -r requirements.txt
+      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+      - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+      - chmod +x sonar-scanner-5.0.1.3006-linux/bin/*
+      - export PATH=$PATH:$PWD/sonar-scanner-5.0.1.3006-linux/bin
+ 
+  pre_build:
+    commands:
+      - python --version
+      - java -version
+      - sonar-scanner --version
+  build:
+    commands:
+      - echo "Waiting for SonarCloud automatic analysis to complete..."
+      - sleep 10  # Adjust based on expected time for analysis completion
+      - echo "Checking Quality Gate status..."
+      - curl -u "$LOGIN:" "$HOST/api/qualitygates/project_status?projectKey=$Project" > result.json
+      - cat result.json
+      - |
+        if [ "$(jq -r '.projectStatus.status' result.json)" = "ERROR" ]; then
+          echo "❌ Quality Gate failed"
+          exit 1
+        else
+          echo "✅ Quality Gate passed"
+        fi
+ 
+artifacts:
+  files:
+    - '/*'
