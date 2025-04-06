@@ -11,7 +11,7 @@ phases:
   install:
     runtime-versions:
       python: 3.11
-      java: openjdk8
+      java: corretto8
     commands:
       - echo "Upgrading pip and installing Python dependencies..."
       - pip install --upgrade pip
@@ -29,6 +29,9 @@ phases:
       - export DJANGO_SETTINGS_MODULE=ebookstore.settings
       - echo "Running pylint..."
       - pylint --load-plugins pylint_django $CODEBUILD_SRC_DIR/ebookstore/
+      - echo "Running Django tests..."
+      - python manage.py test
+
       
       - echo "Installing Maven..."
       - wget http://www-eu.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
