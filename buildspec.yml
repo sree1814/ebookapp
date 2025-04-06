@@ -1,19 +1,64 @@
 version: 0.2
+
+env:
+  secrets-manager:
+    LOGIN: prod/sonar:sonartoken
+    HOST: prod/sonar:HOST
+    Organization: prod/sonar:Organization
+    Project: prod/sonar:Project
+
 phases:
   install:
     runtime-versions:
       python: 3.11
+      java: openjdk8
     commands:
+      - echo "Upgrading pip and installing Python dependencies..."
       - pip install --upgrade pip
-      # Install dependencies needed for running the static analysis
       - pip install -r requirements.txt
+      - echo "Installing required Linux packages and tools..."
+      - apt-get update
+      - apt-get install -y jq unzip wget
+
   pre_build:
     commands:
+      - echo "Verifying Python and Java versions..."
       - python --version
+      - java -version
+      - echo "Setting Django settings module..."
       - export DJANGO_SETTINGS_MODULE=ebookstore.settings
+      - echo "Running pylint..."
       - pylint --load-plugins pylint_django $CODEBUILD_SRC_DIR/ebookstore/
+      
+      - echo "Installing Maven..."
+      - wget http://www-eu.apache.org/dist/maven/maven-3/3.5.4/binaries/apache-maven-3.5.4-bin.tar.gz
+      - tar xzf apache-maven-3.5.4-bin.tar.gz
+      - ln -s apache-maven-3.5.4 maven
+      - export PATH=$PATH:$PWD/maven/bin
+      
+      - echo "Installing Sonar Scanner..."
+      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-3.3.0.1492-linux.zip
+      - unzip sonar-scanner-cli-3.3.0.1492-linux.zip
+      - export PATH=$PATH:$PWD/sonar-scanner-3.3.0.1492-linux/bin
 
-# Optional artifacts section (if needed)
+  build:
+    commands:
+      - echo "Running tests and Sonar analysis..."
+      - mvn test     
+      - mvn sonar:sonar -Dsonar.login=$LOGIN -Dsonar.host.url=$HOST -Dsonar.projectKey=$Project -Dsonar.organization=$Organization
+      
+      - echo "Checking Sonar quality gate..."
+      - sleep 5
+      - curl https://sonarcloud.io/api/qualitygates/project_status?projectKey=$Project > result.json
+      - cat result.json
+      - |
+        if [ "$(jq -r '.projectStatus.status' result.json)" = "ERROR" ]; then
+          echo "❌ Quality gate failed"
+          exit 1
+        else
+          echo "✅ Quality gate passed"
+        fi
+
 artifacts:
   files:
     - '**/*'
