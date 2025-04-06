@@ -4,7 +4,7 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
-       - echo "🔧 Setting up Python environment"
+      - echo "🔧 Setting up Python environment"
       - python -m venv venv
       - source venv/bin/activate
       - pip install --upgrade pip
@@ -34,7 +34,7 @@ phases:
             -Dsonar.login=$LOGIN \
             -Dsonar.python.version=3.11 \
             -Dsonar.verbose=true
-# Optional artifacts section (if needed)
+
 artifacts:
   files:
     - '**/*'
