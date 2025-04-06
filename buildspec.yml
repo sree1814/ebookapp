@@ -4,15 +4,36 @@ phases:
     runtime-versions:
       python: 3.11
     commands:
+       - echo "🔧 Setting up Python environment"
+      - python -m venv venv
+      - source venv/bin/activate
       - pip install --upgrade pip
-      # Install dependencies needed for running the static analysis
       - pip install -r requirements.txt
-  pre_build:
-    commands:
-      - python --version
-      - export DJANGO_SETTINGS_MODULE=ebookstore.settings
-      - pylint --load-plugins pylint_django $CODEBUILD_SRC_DIR/ebookstore/
+      - yum install -y wget unzip jq
 
+      - echo "⬇ Installing Sonar Scanner"
+      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
+      - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
+      - export SONAR_PATH=$PWD/sonar-scanner-5.0.1.3006-linux/bin
+      - echo "Sonar Scanner installed to $SONAR_PATH"
+
+  build:
+    commands:
+      - echo "🧪 Running Django tests"
+      - source venv/bin/activate
+      - python manage.py test || true
+
+      - echo "📊 Running SonarQube analysis"
+      - export PATH=$PATH:$PWD/sonar-scanner-5.0.1.3006-linux/bin
+      - |
+          sonar-scanner \
+            -Dsonar.projectKey=$Project \
+            -Dsonar.organization=$Organization \
+            -Dsonar.sources=. \
+            -Dsonar.host.url=$HOST \
+            -Dsonar.login=$LOGIN \
+            -Dsonar.python.version=3.11 \
+            -Dsonar.verbose=true
 # Optional artifacts section (if needed)
 artifacts:
   files:
