@@ -1,44 +1,27 @@
 version: 0.2
-
-env:
-  secrets-manager:
-    LOGIN: prod/sonar:sonartoken
-    HOST: prod/sonar:HOST
-    Organization: prod/sonar:Organization
-    Project: prod/sonar:Project
-
+ 
 phases:
   install:
     runtime-versions:
       python: 3.11
     commands:
-      - echo "🔧 Setting up Python environment"
-      - python -m venv venv
-      - source venv/bin/activate
       - pip install --upgrade pip
-      - pip install -r requirements.txt
-      - yum install -y wget unzip jq
-
-      - echo "⬇ Installing Sonar Scanner"
-      - wget https://binaries.sonarsource.com/Distribution/sonar-scanner-cli/sonar-scanner-cli-5.0.1.3006-linux.zip
-      - unzip sonar-scanner-cli-5.0.1.3006-linux.zip
-      - export SONAR_PATH=$PWD/sonar-scanner-5.0.1.3006-linux/bin
-      - echo "Sonar Scanner installed to $SONAR_PATH"
-
-build:
+      - pip install -r requirements.txt pylint
+ 
+  pre_build:
     commands:
-      - echo "🧪 Running Django tests"
-      - source venv/bin/activate
-      - python manage.py test || true
-
-      - echo "📊 Running SonarQube analysis"
-      - export PATH=$PATH:$PWD/sonar-scanner-5.0.1.3006-linux/bin
-      - |
-          sonar-scanner \
-            -Dsonar.projectKey=$Project \
-            -Dsonar.organization=$Organization \
-            -Dsonar.sources=. \
-            -Dsonar.host.url=$HOST \
-            -Dsonar.login=$LOGIN \
-            -Dsonar.python.version=3.11 \
-            -Dsonar.verbose=true
+      - python --version
+      #- pylint $(find $CODEBUILD_SRC_DIR -name "*.py") --fail-under=6 || true
+      #- pylint --exit-zero $CODEBUILD_SRC_DIR/*.py
+      - pylint --exit-zero $CODEBUILD_SRC_DIR/ebookstore/*.py
+      - pylint --exit-zero $CODEBUILD_SRC_DIR/books/*.py
+artifacts:
+  files:
+    - '**/*
+      #- pylint $(find $CODEBUILD_SRC_DIR -name "*.py") --fail-under=6 || true
+      #- pylint --exit-zero $CODEBUILD_SRC_DIR/*.py
+      - pylint --exit-zero $CODEBUILD_SRC_DIR/ebookstore/*.py
+      - pylint --exit-zero $CODEBUILD_SRC_DIR/books/*.py
+artifacts:
+  files:
+    - '**/*
