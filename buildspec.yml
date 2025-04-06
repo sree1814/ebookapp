@@ -14,7 +14,7 @@ phases:
       python: 3.11
       java: corretto17
     commands:
-      yum update -y
+      -yum update -y
       - yum install -y jq unzip
       - python -m venv venv
       - source venv/bin/activate
