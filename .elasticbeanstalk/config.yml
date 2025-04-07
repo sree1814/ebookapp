@@ -1,9 +1,9 @@
 branch-defaults:
   main:
-    environment: ebookstore-env
+    environment: ebookstores-env
     group_suffix: null
 global:
-  application_name: ebookstore
+  application_name: ebookstores
   branch: null
   default_ec2_keyname: null
   default_platform: Python 3.9
