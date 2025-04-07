@@ -1,18 +1,31 @@
 version: 0.2
+ 
 phases:
   install:
     runtime-versions:
       python: 3.11
     commands:
+      - echo "🔧 Installing dependencies"
       - pip install --upgrade pip
-      - pip install -r requirements.txt pylint
+      - pip install -r requirements.txt
+      - pip install pylint pytest pytest-django
+ 
   pre_build:
     commands:
+      - echo "📦 Checking Python version"
       - python --version
-      #- pylint $(find $CODEBUILD_SRC_DIR -name "*.py") --fail-under=6 || true
-      #- pylint --exit-zero $CODEBUILD_SRC_DIR/*.py
+ 
+      - echo "🔍 Running pylint on ebookstore/"
       - pylint --exit-zero $CODEBUILD_SRC_DIR/ebookstore/*.py
+ 
+      - echo "🔍 Running pylint on books/"
       - pylint --exit-zero $CODEBUILD_SRC_DIR/books/*.py
+ 
+  build:
+    commands:
+      - echo "🧪 Running pytest for all tests"
+      - pytest || true  # Use `|| true` only if you want to avoid breaking the build on test failures
+ 
 artifacts:
   files:
     - '**/*'
