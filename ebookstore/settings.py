@@ -25,9 +25,11 @@ SECRET_KEY = 'django-insecure-dj62w8hnt+a!bm3klbsaf8$xgfq1gno8f1elw+l(%ur_$p(zel
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["ebookstores-env.eba-nmzpphy6.eu-north-1.elasticbeanstalk.com"]
-
-
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    'localhost',
+    'ebookstores-env.eba-nmzpphy6.eu-north-1.elasticbeanstalk.com'
+]
 # Application definition
 
 INSTALLED_APPS = [
