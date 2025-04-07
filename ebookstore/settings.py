@@ -26,6 +26,7 @@ SECRET_KEY = 'django-insecure-dj62w8hnt+a!bm3klbsaf8$xgfq1gno8f1elw+l(%ur_$p(zel
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    '172.31.44.254', 
     '127.0.0.1',
     'localhost',
     'ebookstores-env.eba-nmzpphy6.eu-north-1.elasticbeanstalk.com'
